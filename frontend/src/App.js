@@ -1,8 +1,11 @@
+// src/App.js
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
 
 const API_URL = 'http://localhost:8080/api/transactions';
+const BALANCE_API_URL = 'http://localhost:8080/api/balance'; // New API endpoint for balance
 
 function App() {
     const [transactions, setTransactions] = useState([]);
@@ -16,9 +19,13 @@ function App() {
     const [message, setMessage] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    // Fetch all transactions from the backend
+    // New state variable to hold the checking account balance
+    const [checkingBalance, setCheckingBalance] = useState(0);
+
+    // Fetch all transactions and the balance from the backend on initial load
     useEffect(() => {
         fetchTransactions();
+        fetchCheckingBalance();
     }, []);
 
     const fetchTransactions = async () => {
@@ -29,6 +36,22 @@ function App() {
         } catch (error) {
             console.error('Error fetching transactions:', error);
             setMessage('Error fetching transactions.');
+        }
+    };
+
+    // New function to fetch the checking balance from the backend
+    const fetchCheckingBalance = async () => {
+        try {
+            // TODO: Replace this hardcoded value with an actual API call
+            // const response = await axios.get(BALANCE_API_URL);
+            // setCheckingBalance(response.data.balance);
+
+            // For now, we'll use a hardcoded value to see the UI.
+            setCheckingBalance(1234.56);
+
+        } catch (error) {
+            console.error('Error fetching checking balance:', error);
+            setMessage('Error fetching checking balance.');
         }
     };
 
@@ -64,6 +87,7 @@ function App() {
                 type: 'income',
             });
             fetchTransactions(); // Refresh the list
+            fetchCheckingBalance(); // Refresh the balance
         } catch (error) {
             console.error('Error saving transaction:', error);
             if (error.response) {
@@ -100,6 +124,7 @@ function App() {
         try {
             await axios.delete(`${API_URL}/${id}`);
             fetchTransactions(); // Refresh the list
+            fetchCheckingBalance(); // Refresh the balance
             setMessage('Transaction deleted successfully!');
         } catch (error) {
             console.error('Error deleting transaction:', error);
@@ -111,6 +136,14 @@ function App() {
         <div className="bg-gray-900 text-gray-200 min-h-screen p-8 font-sans">
             <div className="max-w-4xl mx-auto bg-gray-800 p-6 rounded-lg shadow-xl">
                 <h1 className="text-4xl font-bold text-center text-gray-100 mb-8">Personal Finance Tracker</h1>
+
+                {/* New section to display the checking account balance */}
+                <div className="bg-gray-700 p-6 rounded-lg shadow-inner mb-8 text-center">
+                    <h2 className="text-xl font-semibold text-gray-300">Checking Account Balance</h2>
+                    <p className="text-5xl font-extrabold text-blue-400 mt-2">
+                        ${checkingBalance.toFixed(2)}
+                    </p>
+                </div>
 
                 {/* Message for user feedback */}
                 {message && (
